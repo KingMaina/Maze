@@ -1,4 +1,4 @@
-#include "../include/init.h"
+#include "../include/initialize.h"
 #include "../include/constants.h"
 
 /**
@@ -9,39 +9,41 @@
 */
 int initialize_game(SDL_Instance *instance)
 {
-    if (SDL_Init(SDL_INIT_VIDEO) != FALSE)
+    if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
         fprintf(stderr, "Error initializing SDL: %s\n", SDL_GetError());
-        return (FALSE);
+        return (1);
     }
     instance->window = SDL_CreateWindow(
-        "Maze",
+        "Maze game",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         SCREEN_WIDTH,
         SCREEN_HEIGHT,
-        SDL_WINDOW_BORDERLESS
+        SDL_WINDOW_SHOWN
         );
     if (instance->window == NULL)
     {
         fprintf(stderr, "Error creating SDL window: %s\n", SDL_GetError());
-        return (FALSE);
+        destroy_game(instance);
+        return (1);
     }
     instance->renderer= SDL_CreateRenderer(
         instance->window,
         -1,
-        SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED
+        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
     );
     if (instance->renderer == NULL)
     {
         fprintf(stderr, "Error initializing SDL renderer: %s\n", SDL_GetError());
-        return (FALSE);
+        destroy_game(instance);
+        return (1);
     }
-    SDL_SetRenderDrawBlendMode(
-        instance->renderer,
-        SDL_BLENDMODE_BLEND
-    );
-    return (TRUE);
+    // SDL_SetRenderDrawBlendMode(
+    //     instance->renderer,
+    //     SDL_BLENDMODE_BLEND
+    // );
+    return (0);
 }
 
 /**
@@ -52,7 +54,13 @@ int initialize_game(SDL_Instance *instance)
 */
 void destroy_game(SDL_Instance *instance)
 {
-    SDL_DestroyRenderer(instance->renderer);
-    SDL_DestroyWindow(instance->window);
+    if (instance->renderer != NULL)
+    {
+        SDL_DestroyRenderer(instance->renderer);
+    }
+    if (instance->window != NULL)
+    {
+        SDL_DestroyWindow(instance->window);
+    }
     SDL_Quit();
 }
