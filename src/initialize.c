@@ -1,5 +1,5 @@
-#include "headers/init.h"
-#include "headers/constants.h"
+#include "../include/init.h"
+#include "../include/constants.h"
 
 /**
  * initialize_game - Initializes the game window and renderer

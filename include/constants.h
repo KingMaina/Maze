@@ -1,6 +1,12 @@
 #ifndef __CONSTANTS_H_
 #define __CONSTANTS_H_
 
+#include <stddef.h>
+
+// Miscellaneous
+#define UNUSED __attribute__((unused))
+
+// Boolean values
 #define TRUE 1
 #define FALSE 0
 
