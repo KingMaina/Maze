@@ -1,4 +1,6 @@
-#include "../include/init.h"
+#include "../include/initialize.h"
+#include "../include/player.h"
+#include "../include/events.h"
 
 /**
  * main - Entry point for the game
@@ -7,29 +9,36 @@
  *
  * Return: 0 on success, 1 on failure
  */
-int main(int __attribute__((unused)) argc, char __attribute__((unused)) * argv[])
+int main(void)
 {
-    int isGameRunning = FALSE;
+    int isGameRunning = 0;
     SDL_Instance instance;
     Player player;
 
     isGameRunning = initialize_game(&instance);
 
-    if (isGameRunning == FALSE)
+    if (isGameRunning != 0)
     {
         fprintf(stderr, "Failed to initialize the game.\n");
         return (EXIT_FAILURE);
     }
 
-    if (initialize_player(&player) == FALSE)
+    if (initialize_player(&player) != 0)
     {
         fprintf(stderr, "Error creating the player!\n");
         return (EXIT_FAILURE);
     }
 
-    while (isGameRunning)
+    while ("Maze game is running")
     {
-        break;
+        SDL_SetRenderDrawColor(instance.renderer, 0, 0, 0, 0);
+        SDL_RenderClear(instance.renderer);
+
+        if (poll_game_events() != 0)
+            break;
+        render_player(&instance, &player);
+
+        SDL_RenderPresent(instance.renderer);
     }
 
     destroy_game(&instance);

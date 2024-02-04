@@ -16,6 +16,7 @@ typedef struct Player
     float height;
 } Player;
 
+int render_player(SDL_Instance *, Player *);
 int initialize_player(Player *);
 
 #endif /* __PLAYER_H */

@@ -4,10 +4,6 @@
 #include "SDL2/SDL.h"
 #include <stdio.h>
 
-// Other headers
-#include "player.h"
-#include "constants.h"
-
 /**
  * struct SDL_Instance - The SDL window and rendererer
  * @window: The game window
@@ -19,6 +15,7 @@ typedef struct SDL_Instance {
 } SDL_Instance;
 
 int initialize_game(SDL_Instance *);
-void destroy_game(SDL_Instance *instance);
+void destroy_game(SDL_Instance *);
+
 
 #endif /* __INIT__H */
