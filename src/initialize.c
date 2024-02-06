@@ -39,10 +39,10 @@ int initialize_game(SDL_Instance *instance)
         destroy_game(instance);
         return (1);
     }
-    // SDL_SetRenderDrawBlendMode(
-    //     instance->renderer,
-    //     SDL_BLENDMODE_BLEND
-    // );
+    SDL_SetRenderDrawBlendMode(
+        instance->renderer,
+        SDL_BLENDMODE_BLEND
+    );
     return (0);
 }
 
