@@ -3,15 +3,18 @@
 
 #include <stddef.h>
 
-// Miscellaneous
-#define UNUSED __attribute__((unused))
+/* Raycasting */
+#define TILE_SIZE 64
 
-// Boolean values
+/* Boolean values */
 #define TRUE 1
 #define FALSE 0
 
 // Screen dimentions
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
+
+// Miscellaneous
+#define UNUSED __attribute__((unused))
 
 #endif /* __CONSTANTS_H_ */

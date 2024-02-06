@@ -1,6 +1,7 @@
 #include "../include/initialize.h"
 #include "../include/player.h"
 #include "../include/events.h"
+#include "../include/game_map.h"
 
 /**
  * main - Entry point for the game
@@ -36,7 +37,8 @@ int main(void)
 
         if (poll_game_events() != 0)
             break;
-        render_player(&instance, &player);
+        draw_map(&instance);
+        // render_player(&instance, &player);
 
         SDL_RenderPresent(instance.renderer);
     }
