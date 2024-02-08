@@ -2,6 +2,7 @@
 #include "../include/player.h"
 #include "../include/events.h"
 #include "../include/game_map.h"
+#include "../include/raycasting.h"
 
 /**
  * main - Entry point for the game
@@ -38,7 +39,8 @@ int main(void)
         if (poll_game_events() != 0)
             break;
         draw_map(&instance);
-        // render_player(&instance, &player);
+        render_player(&instance, &player);
+        cast_all_rays(&player);
 
         SDL_RenderPresent(instance.renderer);
     }
