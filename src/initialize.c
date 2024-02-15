@@ -1,5 +1,6 @@
 #include "../include/initialize.h"
 #include "../include/constants.h"
+#include "../include/raycasting.h"
 
 /**
  * initialize_game - Initializes the game window and renderer
