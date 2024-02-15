@@ -1,0 +1,15 @@
+Lode's Computer Graphics Tutorial - Raycasting
+https://lodev.org/cgtutor/raycasting.html
+
+SDL_Delay:
+http://wiki.libsdl.org/SDL2/SDL_Delay
+
+Ray-Casting Tutorial
+https://permadi.com/1996/05/ray-casting-tutorial-table-of-contents/
+
+Png decoding library
+https://github.com/elanthis/upng 
+
+Doom style software renderer
+https://github.com/jdah/doomenstein-3d
+

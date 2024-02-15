@@ -1,24 +1,36 @@
-#ifndef __CONSTANTS_H_
-#define __CONSTANTS_H_
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
 
-#include <stddef.h>
+#include <math.h>
 
-/* Boolean values */
-#define TRUE 1
-#define FALSE 0
+#define EXEC_FAIL 0
+#define EXEC_SUCCESS 1
 
-/* Screen dimentions */
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
+#define PI 3.14159265
+#define TWO_PI 6.28318530
 
-/* Raycasting */
-#define TWO_PI 2 * M_PI /* 2 * PI or 360 degrees */
-#define FOV_ANGLE 60 * (M_PI / 180) /* Field of view in radians */
+// Raycasting constants:
 #define TILE_SIZE 64
-#define NUM_RAYS SCREEN_WIDTH /* Number of rays to cast */
-#define PROJ_PLANE_DIST (SCREEN_WIDTH / 2) / tan(FOV_ANGLE / 2) /* Projection plane distance */
+#define MAP_NUM_ROWS 13
+#define MAP_NUM_COLS 20
+#define NUM_TEXTURES 11
 
-/* Miscellaneous */
-#define UNUSED __attribute__((unused))
+#define MAP_SCALE_FACTOR 0.25
 
-#endif /* __CONSTANTS_H_ */
+#define SCREEN_WIDTH 1280
+#define SCREEN_HEIGHT 800
+
+#define TEXTURE_WIDTH 64
+#define TEXTURE_HEIGHT 64
+
+#define FOV_ANGLE (60 * (PI / 180))
+#define NUM_RAYS SCREEN_WIDTH
+
+// calc how far the player is from the projection plane
+#define DIST_PROJ_PLANE ((SCREEN_WIDTH / 2) / tan(FOV_ANGLE / 2))
+
+// DeltaTime
+#define FPS 30                         // Frames per second
+#define FRAME_TIME_LENGHT (1000 / FPS) // expected milliseconds in a frame
+
+#endif
