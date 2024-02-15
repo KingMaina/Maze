@@ -7,7 +7,7 @@
 
 #include "SDL2/SDL.h"
 #include <stdio.h>
-#include "../include/constants.h"
+#include "./constants.h"
 
 /**
  * struct SDL_Instance - The SDL window and renderer

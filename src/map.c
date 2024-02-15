@@ -1,17 +1,9 @@
 #include "../include/game_map.h"
+#include "../include/constants.h"
+#include "../include/player.h"
+#include "../include/initialize.h"
+#include "../include/raycasting.h"
 
-const int map[MAP_NUMBER_ROWS][MAP_NUMBER_COLS] = {
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-};
 
 /**
  * draw_map - Renders the map
@@ -19,7 +11,7 @@ const int map[MAP_NUMBER_ROWS][MAP_NUMBER_COLS] = {
  *
  * Return: 0 if successful, 1 otherwise
  */
-int draw_map(SDL_Instance *instance)
+int draw_map(SDL_Instance *instance, const int (*map)[MAP_NUMBER_ROWS][MAP_NUMBER_COLS])
 {
     int row = 0, column = 0;
     int success = 0;
@@ -30,7 +22,7 @@ int draw_map(SDL_Instance *instance)
         {
             int tileXCoordinate = column * TILE_SIZE;
             int tileYCoordinate = row * TILE_SIZE;
-            int tileColor = map[row][column];
+            int tileColor = (*map)[row][column];
 
             if (tileColor != 0)
                 tileColor = 150;
@@ -53,4 +45,17 @@ int draw_map(SDL_Instance *instance)
         }
     }
     return (success);
+}
+
+void renderRays(SDL_Instance *instance, Player *player, Rays rays[NUM_RAYS]){
+    SDL_SetRenderDrawColor(instance->renderer, 0,255,0,255);
+    for (int i = 0; i < NUM_RAYS; i++){
+        SDL_RenderDrawLine(
+            instance->renderer,
+            MAP_SCALE_FACTOR * player->x,            // start position of ray
+            MAP_SCALE_FACTOR * player->y,
+            MAP_SCALE_FACTOR * rays[i]->wallSideHitX,    // end position of ray
+            MAP_SCALE_FACTOR * rays[i]->wallSideHitY
+        );
+    }
 }

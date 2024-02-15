@@ -16,6 +16,26 @@ int main(void)
     int isGameRunning = 0;
     SDL_Instance instance;
     Player player;
+    Rays *rays = malloc(sizeof(Rays) * NUM_RAYS);
+
+    if (rays == NULL)
+    {
+        fprintf(stderr, "Failed to allocate memory for rays\n");
+        return (EXIT_FAILURE);
+    }
+
+    const int map[MAP_NUMBER_ROWS][MAP_NUMBER_COLS] = {
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+        {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+        {1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+        {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+        {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+        {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    };
 
     isGameRunning = initialize_game(&instance);
 
@@ -38,13 +58,16 @@ int main(void)
 
         if (poll_game_events() != 0)
             break;
-        draw_map(&instance);
+        draw_map(&instance, &map);
         render_player(&instance, &player);
-        cast_all_rays(&player);
+        cast_all_rays(&player, rays, &map);
+        renderRays(&instance, &player, rays);
+        draw_rays(&instance, &player, rays);
 
         SDL_RenderPresent(instance.renderer);
     }
-
+    if (rays != NULL)
+        free(rays);
     destroy_game(&instance);
     return (EXIT_SUCCESS);
 }
