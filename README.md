@@ -15,7 +15,7 @@ Maze is a simple game that allows the player to navigate through a maze. The pla
 
 ## Installation
 
-To install the game, simply cimageslone the repository and run the following command:
+To install the game, simply clone the repository and run the following command:
 
 ```bash
 make build && make run

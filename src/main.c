@@ -8,7 +8,6 @@
 #include "../include/constants.h"
 #include "../include/textures.h"
 
-//********************************* MAP *******************************************//
 const int map[MAP_NUM_ROWS][MAP_NUM_COLS] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
@@ -23,9 +22,19 @@ const int map[MAP_NUM_ROWS][MAP_NUM_COLS] = {
     {1, 0, 1, 0, 1, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1},
     {1, 0, 1, 0, 1, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
-//*********************************************************************************//
 
-// Struct to hold player data
+/**
+ * struct Player - struct to hold the player object
+ * @x: x-coordinate of the player
+ * @y: y-coordinate of the player
+ * @width: width of the player
+ * @height: height of the player
+ * @turnDirection: direction of the player
+ * @walkDirection: direction of the player
+ * @rotationAngle: angle of the player
+ * @walkSpeed: speed of the player
+ * @turnSpeed: speed of the player
+*/
 typedef struct Player
 {
     float x;
@@ -37,7 +46,7 @@ typedef struct Player
     float rotationAngle;
     float walkSpeed;
     float turnSpeed; // angles per second
-} Player;            // declare variable name for the player struct
+} Player;
 
 // Struct/container to hold the ray 'object'
 struct Ray
@@ -58,7 +67,7 @@ int isGameRunning = EXEC_FAIL;
 int ticksLastFrame;
 // Color buffer = array of pixels per line
 SDL_Texture *colorBufferTexture; // using SDL to display array of pixels representing texture
-Player player;
+
 
 void destroyWindow(SDL_Instance *instance, SDL_Texture *colorBufferTexture, uint32_t *colorBuffer)
 {
@@ -113,42 +122,42 @@ int mapHasWallAt(float x, float y)
     return map[mapGridIndexY][mapGridIndexX] != 0;
 }
 
-void movePlayer(float deltaTime)
+void movePlayer(Player *player, float deltaTime)
 {
-    player.rotationAngle += player.turnDirection * player.turnSpeed * deltaTime;
-    float moveStep = player.walkDirection * player.walkSpeed * deltaTime;
+    player->rotationAngle += player->turnDirection * player->turnSpeed * deltaTime;
+    float moveStep = player->walkDirection * player->walkSpeed * deltaTime;
 
-    float newPlayerX = player.x + cos(player.rotationAngle) * moveStep;
-    float newPlayerY = player.y + sin(player.rotationAngle) * moveStep;
+    float newPlayerX = player->x + cos(player->rotationAngle) * moveStep;
+    float newPlayerY = player->y + sin(player->rotationAngle) * moveStep;
 
     // perform wall colision
     // Only assign newPlayer position when not overlapping wall position
     if (!mapHasWallAt(newPlayerX, newPlayerY))
     {
-        player.x = newPlayerX;
-        player.y = newPlayerY;
+        player->x = newPlayerX;
+        player->y = newPlayerY;
     }
 }
 //*********************************************************************************//
 
 // /////////////////////////////////////////////////////////////////////////////// //
 //*************************** RENDER PLAYER ***************************************//
-void renderPlayer(SDL_Instance *instance)
+void renderPlayer(SDL_Instance *instance, Player *player)
 {
     SDL_SetRenderDrawColor(instance->renderer, 255, 255, 255, 255);
     SDL_Rect playerRect = {
-        player.x * MAP_SCALE_FACTOR,
-        player.y * MAP_SCALE_FACTOR,
-        player.width * MAP_SCALE_FACTOR,
-        player.height * MAP_SCALE_FACTOR};
+        player->x * MAP_SCALE_FACTOR,
+        player->y * MAP_SCALE_FACTOR,
+        player->width * MAP_SCALE_FACTOR,
+        player->height * MAP_SCALE_FACTOR};
     SDL_RenderFillRect(instance->renderer, &playerRect);
 
     SDL_RenderDrawLine(
         instance->renderer,
-        MAP_SCALE_FACTOR * player.x,
-        MAP_SCALE_FACTOR * player.y,
-        MAP_SCALE_FACTOR * player.x + cos(player.rotationAngle) * 40,
-        MAP_SCALE_FACTOR * player.y + sin(player.rotationAngle) * 40);
+        MAP_SCALE_FACTOR * player->x,
+        MAP_SCALE_FACTOR * player->y,
+        MAP_SCALE_FACTOR * player->x + cos(player->rotationAngle) * 40,
+        MAP_SCALE_FACTOR * player->y + sin(player->rotationAngle) * 40);
 }
 //*********************************************************************************//
 
@@ -168,7 +177,7 @@ float distanceBetweenPoints(float x1, float y1, float x2, float y2)
 
 // /////////////////////////////////////////////////////////////////////////////// //
 //************************ RAY CASTING ********************************************//
-void castRay(float rayAngle, int stripId)
+void castRay(Player *player, float rayAngle, int stripId)
 {
     rayAngle = normaliseAngle(rayAngle);
 
@@ -188,11 +197,11 @@ void castRay(float rayAngle, int stripId)
     int horzWallContent = 0;
 
     // Find the y-coordinate of the closest horizontal grid intersection
-    yintercept = floor(player.y / TILE_SIZE) * TILE_SIZE;
+    yintercept = floor(player->y / TILE_SIZE) * TILE_SIZE;
     yintercept += isRayFacingDownward ? TILE_SIZE : 0;
 
     // Find the x-coordinate of the closest horizontal grid intersection
-    xintercept = player.x + (yintercept - player.y) / tan(rayAngle);
+    xintercept = player->x + (yintercept - player->y) / tan(rayAngle);
 
     // Calculate the increment xstep and ystep
     ystep = TILE_SIZE;
@@ -237,11 +246,11 @@ void castRay(float rayAngle, int stripId)
     int vertWallContent = 0;
 
     // Find the x-coordinate of the closest horizontal grid intersection
-    xintercept = floor(player.x / TILE_SIZE) * TILE_SIZE;
+    xintercept = floor(player->x / TILE_SIZE) * TILE_SIZE;
     xintercept += isRayFacingRight ? TILE_SIZE : 0;
 
     // Find the y-coordinate of the closest horizontal grid intersection
-    yintercept = player.y + (xintercept - player.x) * tan(rayAngle);
+    yintercept = player->y + (xintercept - player->x) * tan(rayAngle);
 
     // Calculate the increment xstep
     xstep = TILE_SIZE;
@@ -281,10 +290,10 @@ void castRay(float rayAngle, int stripId)
 
     // Calculate both horizontal and vertical hit distances and choose the closest one
     float horzHitDistance = foundHorzWallHit
-                                ? distanceBetweenPoints(player.x, player.y, horzWallHitX, horzWallHitY)
+                                ? distanceBetweenPoints(player->x, player->y, horzWallHitX, horzWallHitY)
                                 : FLT_MAX;
     float vertHitDistance = foundVertWallHit
-                                ? distanceBetweenPoints(player.x, player.y, vertWallHitX, vertWallHitY)
+                                ? distanceBetweenPoints(player->x, player->y, vertWallHitX, vertWallHitY)
                                 : FLT_MAX;
 
     // Keep the closest distance to the player
@@ -312,12 +321,12 @@ void castRay(float rayAngle, int stripId)
 }
 //*********************************************************************************//
 
-void castAllRays()
+void castAllRays(Player *player)
 {
     for (int col = 0; col < NUM_RAYS; col++)
     {
-        float rayAngle = player.rotationAngle + atan((col - NUM_RAYS / 2) / DIST_PROJ_PLANE);
-        castRay(rayAngle, col);
+        float rayAngle = player->rotationAngle + atan((col - NUM_RAYS / 2) / DIST_PROJ_PLANE);
+        castRay(player, rayAngle, col);
     }
 }
 
@@ -348,15 +357,15 @@ void renderMap(SDL_Instance *instance)
 
 // /////////////////////////////////////////////////////////////////////////////// //
 //*************************** RENDER RAYS ******************************************//
-void renderRays(SDL_Instance *instance)
+void renderRays(SDL_Instance *instance, Player *player)
 {
     SDL_SetRenderDrawColor(instance->renderer, 255, 0, 0, 255);
     for (int i = 0; i < NUM_RAYS; i++)
     {
         SDL_RenderDrawLine(
             instance->renderer,
-            MAP_SCALE_FACTOR * player.x, // start position of ray
-            MAP_SCALE_FACTOR * player.y,
+            MAP_SCALE_FACTOR * player->x, // start position of ray
+            MAP_SCALE_FACTOR * player->y,
             MAP_SCALE_FACTOR * rays[i].wallHitX, // end position of ray
             MAP_SCALE_FACTOR * rays[i].wallHitY);
     }
@@ -365,7 +374,7 @@ void renderRays(SDL_Instance *instance)
 
 // /////////////////////////////////////////////////////////////////////////////// //
 //*************************** USER INPUT ******************************************//
-void handleInputEvents()
+void handleInputEvents(Player *player)
 {
     SDL_Event event;
     SDL_PollEvent(&event);
@@ -382,32 +391,32 @@ void handleInputEvents()
         if (event.key.keysym.sym == SDLK_ESCAPE)
             isGameRunning = EXEC_FAIL;
         if (event.key.keysym.sym == SDLK_UP)
-            player.walkDirection = +1;
+            player->walkDirection = +1;
         if (event.key.keysym.sym == SDLK_DOWN)
-            player.walkDirection = -1;
+            player->walkDirection = -1;
         if (event.key.keysym.sym == SDLK_RIGHT)
-            player.turnDirection = +1;
+            player->turnDirection = +1;
         if (event.key.keysym.sym == SDLK_LEFT)
-            player.turnDirection = -1;
+            player->turnDirection = -1;
         break;
     }
     case SDL_KEYUP:
     {
         if (event.key.keysym.sym == SDLK_UP)
-            player.walkDirection = 0;
+            player->walkDirection = 0;
         if (event.key.keysym.sym == SDLK_DOWN)
-            player.walkDirection = 0;
+            player->walkDirection = 0;
         if (event.key.keysym.sym == SDLK_RIGHT)
-            player.turnDirection = 0;
+            player->turnDirection = 0;
         if (event.key.keysym.sym == SDLK_LEFT)
-            player.turnDirection = 0;
+            player->turnDirection = 0;
         break;
     }
     }
 }
 //*********************************************************************************//
 
-void updateGame()
+void updateGame(Player *player)
 {
     //*************************** SDL_Delay ***************************************//
     // delay some time until the target frame time length is reached
@@ -426,15 +435,15 @@ void updateGame()
     ticksLastFrame = SDL_GetTicks();
     //*****************************************************************************//
 
-    movePlayer(deltaTime);
-    castAllRays();
+    movePlayer(player, deltaTime);
+    castAllRays(player);
 }
 
-void createWorld(uint32_t *colorBuffer)
+void createWorld(Player *player, uint32_t *colorBuffer)
 {
     for (int i = 0; i < NUM_RAYS; i++)
     {
-        float perpDistance = rays[i].distance * cos(rays[i].rayAngle - player.rotationAngle); // Correct the fish-eye distortion
+        float perpDistance = rays[i].distance * cos(rays[i].rayAngle - player->rotationAngle); // Correct the fish-eye distortion
         float projectedWallHeight = (TILE_SIZE / perpDistance) * DIST_PROJ_PLANE;
 
         int wallStripHeight = (int)projectedWallHeight;
@@ -505,12 +514,12 @@ void renderColorBuffer(SDL_Instance *instance, SDL_Texture *colorBufferTexture, 
     SDL_RenderCopy(instance->renderer, colorBufferTexture, NULL, NULL);
 }
 
-void render(SDL_Instance *instance, SDL_Texture *colorBufferTexture, uint32_t *colorBuffer)
+void render(SDL_Instance *instance, Player *player, SDL_Texture *colorBufferTexture, uint32_t *colorBuffer)
 {
     SDL_SetRenderDrawColor(instance->renderer, 0, 0, 0, 255);
     SDL_RenderClear(instance->renderer);
 
-    createWorld(colorBuffer);
+    createWorld(player, colorBuffer);
 
     // render the color buffer from memory in real time
     renderColorBuffer(instance, colorBufferTexture, colorBuffer);
@@ -519,8 +528,8 @@ void render(SDL_Instance *instance, SDL_Texture *colorBufferTexture, uint32_t *c
 
     // display the MiniMap
     renderMap(instance);
-    renderRays(instance);
-    renderPlayer(instance);
+    renderRays(instance, player);
+    renderPlayer(instance, player);
 
     SDL_RenderPresent(instance->renderer);
 }
@@ -529,14 +538,15 @@ int main(int argc, char *argv[])
 {
     SDL_Instance instance;
     uint32_t *colorBuffer = NULL;
+    Player player;
 
     isGameRunning = initializeWindow(&instance);
     setup(&instance, &player, &colorBuffer);
     while (isGameRunning)
     {
-        handleInputEvents();
-        updateGame();
-        render(&instance, colorBufferTexture, colorBuffer);
+        handleInputEvents(&player);
+        updateGame(&player);
+        render(&instance, &player, colorBufferTexture, colorBuffer);
     }
     destroyWindow(&instance, colorBufferTexture, colorBuffer);
     return 0;
