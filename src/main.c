@@ -76,7 +76,7 @@ int initializeWindow()
         SDL_WINDOWPOS_CENTERED,
         SCREEN_WIDTH,
         SCREEN_HEIGHT,
-        SDL_WINDOW_BORDERLESS);
+        SDL_WINDOW_FULLSCREEN);
     if (!window)
     {
         fprintf(stderr, "Error creating SDL window.\n");
@@ -348,8 +348,6 @@ void castRay(float rayAngle, int stripId)
 
 void castAllRays()
 {
-    // start first ray subtracting half of Field Of View
-
     for (int col = 0; col < NUM_RAYS; col++)
     {
         float rayAngle = player.rotationAngle + atan((col - NUM_RAYS / 2) / DIST_PROJ_PLANE);
