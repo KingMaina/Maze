@@ -26,7 +26,7 @@ const int map[MAP_NUM_ROWS][MAP_NUM_COLS] = {
 //*********************************************************************************//
 
 // Struct to hold player data
-struct Player
+typedef struct Player
 {
     float x;
     float y;
@@ -37,7 +37,7 @@ struct Player
     float rotationAngle;
     float walkSpeed;
     float turnSpeed; // angles per second
-} player;            // declare variable name for the player struct
+} Player;            // declare variable name for the player struct
 
 // Struct/container to hold the ray 'object'
 struct Ray
@@ -56,12 +56,11 @@ struct Ray
 
 int isGameRunning = EXEC_FAIL;
 int ticksLastFrame;
-
-uint32_t *colorBuffer = NULL;    // Color buffer = array of pixels per line
+// Color buffer = array of pixels per line
 SDL_Texture *colorBufferTexture; // using SDL to display array of pixels representing texture
+Player player;
 
-
-void destroyWindow(SDL_Instance *instance)
+void destroyWindow(SDL_Instance *instance, SDL_Texture *colorBufferTexture, uint32_t *colorBuffer)
 {
     freeWallTextures();
     free(colorBuffer);                      // clearing previously allocated memory for the buffer
@@ -72,25 +71,25 @@ void destroyWindow(SDL_Instance *instance)
 }
 //*********************************************************************************//
 
-void setup(SDL_Instance *instance)
+void setup(SDL_Instance *instance, Player *player, uint32_t **colorBuffer)
 {
     // Setting up the Player
-    player.x = SCREEN_WIDTH / 2;
-    player.y = SCREEN_HEIGHT / 2;
-    player.width = 1;
-    player.height = 1;
-    player.turnDirection = 0;
-    player.walkDirection = 0;
-    player.rotationAngle = PI / 2;
-    player.walkSpeed = 100;
-    player.turnSpeed = 45 * (PI / 180);
+    player->x = SCREEN_WIDTH / 2;
+    player->y = SCREEN_HEIGHT / 2;
+    player->width = 1;
+    player->height = 1;
+    player->turnDirection = 0;
+    player->walkDirection = 0;
+    player->rotationAngle = PI / 2;
+    player->walkSpeed = 100;
+    player->turnSpeed = 45 * (PI / 180);
 
     // Allocate enough memory to hold the entire screen in the color buffer
-    colorBuffer = (uint32_t *)malloc(sizeof(uint32_t) * SCREEN_WIDTH * SCREEN_HEIGHT * 8);
+    *colorBuffer = (uint32_t *)malloc(sizeof(uint32_t) * SCREEN_WIDTH * SCREEN_HEIGHT * 8);
 
     // Create a SDL_Texture to display the color buffer
     colorBufferTexture = SDL_CreateTexture(
-        instance->renderer,                    // create textures to renderer
+        instance->renderer,          // create textures to renderer
         SDL_PIXELFORMAT_RGBA32,      // pixel format -> alpha RGB fill
         SDL_TEXTUREACCESS_STREAMING, // FLAG -> able to change texture in real time
         SCREEN_WIDTH,                // size
@@ -431,7 +430,7 @@ void updateGame()
     castAllRays();
 }
 
-void createWorld()
+void createWorld(uint32_t *colorBuffer)
 {
     for (int i = 0; i < NUM_RAYS; i++)
     {
@@ -483,7 +482,7 @@ void createWorld()
     }
 }
 
-void clearColorBuffer(uint32_t color)
+void clearColorBuffer(uint32_t *colorBuffer, uint32_t color)
 {
     // Clear the entire color buffer with the color black
     for (int x = 0; x < SCREEN_WIDTH; x++)
@@ -495,7 +494,7 @@ void clearColorBuffer(uint32_t color)
     }
 }
 
-void renderColorBuffer(SDL_Instance *instance)
+void renderColorBuffer(SDL_Instance *instance, SDL_Texture *colorBufferTexture, uint32_t *colorBuffer)
 {
     // copy all the texture information from the buffer
     SDL_UpdateTexture(
@@ -506,17 +505,17 @@ void renderColorBuffer(SDL_Instance *instance)
     SDL_RenderCopy(instance->renderer, colorBufferTexture, NULL, NULL);
 }
 
-void render(SDL_Instance *instance)
+void render(SDL_Instance *instance, SDL_Texture *colorBufferTexture, uint32_t *colorBuffer)
 {
     SDL_SetRenderDrawColor(instance->renderer, 0, 0, 0, 255);
     SDL_RenderClear(instance->renderer);
 
-    createWorld();
+    createWorld(colorBuffer);
 
     // render the color buffer from memory in real time
-    renderColorBuffer(instance);
+    renderColorBuffer(instance, colorBufferTexture, colorBuffer);
     // clear the color buffer
-    clearColorBuffer(0xFF000000); // clear screen using black color
+    clearColorBuffer(colorBuffer, 0xFF000000);
 
     // display the MiniMap
     renderMap(instance);
@@ -529,15 +528,16 @@ void render(SDL_Instance *instance)
 int main(int argc, char *argv[])
 {
     SDL_Instance instance;
+    uint32_t *colorBuffer = NULL;
 
     isGameRunning = initializeWindow(&instance);
-    setup(&instance);
+    setup(&instance, &player, &colorBuffer);
     while (isGameRunning)
     {
         handleInputEvents();
         updateGame();
-        render(&instance);
+        render(&instance, colorBufferTexture, colorBuffer);
     }
-    destroyWindow(&instance);
+    destroyWindow(&instance, colorBufferTexture, colorBuffer);
     return 0;
 }
