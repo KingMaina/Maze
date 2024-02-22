@@ -4,7 +4,7 @@
 #include <limits.h>
 #include <math.h>
 #include <float.h>
-#include <SDL2/SDL.h>
+#include "../include/init.h"
 #include "../include/constants.h"
 #include "../include/textures.h"
 
@@ -54,8 +54,6 @@ struct Ray
     int wallHitContent;
 } rays[NUM_RAYS]; // array of rays
 
-SDL_Window *window = NULL;
-SDL_Renderer *renderer = NULL;
 int isGameRunning = EXEC_FAIL;
 int ticksLastFrame;
 
@@ -63,49 +61,18 @@ uint32_t *colorBuffer = NULL;    // Color buffer = array of pixels per line
 SDL_Texture *colorBufferTexture; // using SDL to display array of pixels representing texture
 
 
-int initializeWindow()
-{
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
-    {
-        fprintf(stderr, "Error initializing SDL.\n");
-        return EXEC_FAIL;
-    }
-    window = SDL_CreateWindow(
-        NULL,
-        SDL_WINDOWPOS_CENTERED,
-        SDL_WINDOWPOS_CENTERED,
-        SCREEN_WIDTH,
-        SCREEN_HEIGHT,
-        SDL_WINDOW_FULLSCREEN);
-    if (!window)
-    {
-        fprintf(stderr, "Error creating SDL window.\n");
-        return EXEC_FAIL;
-    }
-    renderer = SDL_CreateRenderer(window, -1, 0);
-    if (!renderer)
-    {
-        fprintf(stderr, "Error creating SDL renderer.\n");
-        return EXEC_FAIL;
-    }
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-
-    return EXEC_SUCCESS;
-}
-
-
-void destroyWindow()
+void destroyWindow(SDL_Instance *instance)
 {
     freeWallTextures();
     free(colorBuffer);                      // clearing previously allocated memory for the buffer
     SDL_DestroyTexture(colorBufferTexture); // destroy textures
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
+    SDL_DestroyRenderer(instance->renderer);
+    SDL_DestroyWindow(instance->window);
     SDL_Quit;
 }
 //*********************************************************************************//
 
-void setup()
+void setup(SDL_Instance *instance)
 {
     // Setting up the Player
     player.x = SCREEN_WIDTH / 2;
@@ -123,7 +90,7 @@ void setup()
 
     // Create a SDL_Texture to display the color buffer
     colorBufferTexture = SDL_CreateTexture(
-        renderer,                    // create textures to renderer
+        instance->renderer,                    // create textures to renderer
         SDL_PIXELFORMAT_RGBA32,      // pixel format -> alpha RGB fill
         SDL_TEXTUREACCESS_STREAMING, // FLAG -> able to change texture in real time
         SCREEN_WIDTH,                // size
@@ -167,18 +134,18 @@ void movePlayer(float deltaTime)
 
 // /////////////////////////////////////////////////////////////////////////////// //
 //*************************** RENDER PLAYER ***************************************//
-void renderPlayer()
+void renderPlayer(SDL_Instance *instance)
 {
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(instance->renderer, 255, 255, 255, 255);
     SDL_Rect playerRect = {
         player.x * MAP_SCALE_FACTOR,
         player.y * MAP_SCALE_FACTOR,
         player.width * MAP_SCALE_FACTOR,
         player.height * MAP_SCALE_FACTOR};
-    SDL_RenderFillRect(renderer, &playerRect);
+    SDL_RenderFillRect(instance->renderer, &playerRect);
 
     SDL_RenderDrawLine(
-        renderer,
+        instance->renderer,
         MAP_SCALE_FACTOR * player.x,
         MAP_SCALE_FACTOR * player.y,
         MAP_SCALE_FACTOR * player.x + cos(player.rotationAngle) * 40,
@@ -357,7 +324,7 @@ void castAllRays()
 
 // /////////////////////////////////////////////////////////////////////////////// //
 //*************************** RENDER MAP ******************************************//
-void renderMap()
+void renderMap(SDL_Instance *instance)
 {
     for (int i = 0; i < MAP_NUM_ROWS; i++)
     {
@@ -368,13 +335,13 @@ void renderMap()
             int tileColor = map[i][j] != 0 ? 200 : 0; // ternary statement - if the value at
             // map[i][j] is not equal to 0, then set tileColor to 255; otherwise, set it to 0
 
-            SDL_SetRenderDrawColor(renderer, tileColor, tileColor, tileColor, 255);
+            SDL_SetRenderDrawColor(instance->renderer, tileColor, tileColor, tileColor, 255);
             SDL_Rect mapTileRect = {
                 tileX * MAP_SCALE_FACTOR,
                 tileY * MAP_SCALE_FACTOR,
                 TILE_SIZE * MAP_SCALE_FACTOR,
                 TILE_SIZE * MAP_SCALE_FACTOR};
-            SDL_RenderFillRect(renderer, &mapTileRect);
+            SDL_RenderFillRect(instance->renderer, &mapTileRect);
         }
     }
 }
@@ -382,13 +349,13 @@ void renderMap()
 
 // /////////////////////////////////////////////////////////////////////////////// //
 //*************************** RENDER RAYS ******************************************//
-void renderRays()
+void renderRays(SDL_Instance *instance)
 {
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_SetRenderDrawColor(instance->renderer, 255, 0, 0, 255);
     for (int i = 0; i < NUM_RAYS; i++)
     {
         SDL_RenderDrawLine(
-            renderer,
+            instance->renderer,
             MAP_SCALE_FACTOR * player.x, // start position of ray
             MAP_SCALE_FACTOR * player.y,
             MAP_SCALE_FACTOR * rays[i].wallHitX, // end position of ray
@@ -528,7 +495,7 @@ void clearColorBuffer(uint32_t color)
     }
 }
 
-void renderColorBuffer()
+void renderColorBuffer(SDL_Instance *instance)
 {
     // copy all the texture information from the buffer
     SDL_UpdateTexture(
@@ -536,39 +503,41 @@ void renderColorBuffer()
         NULL,
         colorBuffer,
         (int)((uint32_t)SCREEN_WIDTH * sizeof(uint32_t)));
-    SDL_RenderCopy(renderer, colorBufferTexture, NULL, NULL);
+    SDL_RenderCopy(instance->renderer, colorBufferTexture, NULL, NULL);
 }
 
-void render()
+void render(SDL_Instance *instance)
 {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
+    SDL_SetRenderDrawColor(instance->renderer, 0, 0, 0, 255);
+    SDL_RenderClear(instance->renderer);
 
     createWorld();
 
     // render the color buffer from memory in real time
-    renderColorBuffer();
+    renderColorBuffer(instance);
     // clear the color buffer
     clearColorBuffer(0xFF000000); // clear screen using black color
 
     // display the MiniMap
-    renderMap();
-    renderRays();
-    renderPlayer();
+    renderMap(instance);
+    renderRays(instance);
+    renderPlayer(instance);
 
-    SDL_RenderPresent(renderer);
+    SDL_RenderPresent(instance->renderer);
 }
 
 int main(int argc, char *argv[])
 {
-    isGameRunning = initializeWindow();
-    setup();
+    SDL_Instance instance;
+
+    isGameRunning = initializeWindow(&instance);
+    setup(&instance);
     while (isGameRunning)
     {
         handleInputEvents();
         updateGame();
-        render();
+        render(&instance);
     }
-    destroyWindow();
+    destroyWindow(&instance);
     return 0;
 }
