@@ -8,6 +8,7 @@
 * @map: map
 * @colorBufferTexture: color buffer texture
 * @colorBuffer: color buffer
+* @wallTextures: wall textures
 *
 * Return: void
 */
@@ -15,16 +16,17 @@ void render(SDL_Instance *instance,
 	Player *player,
 	Rays *rays,
 	int map[MAP_NUM_ROWS][MAP_NUM_COLS],
-	SDL_Texture *colorBufferTexture,
-	uint32_t *colorBuffer)
+	SDL_Texture **colorBufferTexture,
+	uint32_t *colorBuffer,
+	texture_t wallTextures[NUM_TEXTURES])
 {
 	SDL_SetRenderDrawColor(instance->renderer, 0, 0, 0, 255);
 	SDL_RenderClear(instance->renderer);
 
 	/* Create the 3-D world*/
-	createWorld(player, rays, colorBuffer);
+	createWorld(player, rays, colorBuffer, wallTextures);
 	/* Render the color buffer from memory in real time */
-	renderColorBuffer(instance, colorBufferTexture, colorBuffer);
+	renderColorBuffer(instance, *colorBufferTexture, colorBuffer);
 	/* Clear the color buffer */
 	clearColorBuffer(colorBuffer, 0xFF000000);
 

@@ -9,7 +9,7 @@
  *
  * Return: void
 */
-void createWorld(Player *player, Rays *rays, uint32_t *colorBuffer)
+void createWorld(Player *player, Rays *rays, uint32_t *colorBuffer, texture_t wallTextures[NUM_TEXTURES])
 {
     for (int i = 0; i < NUM_RAYS; i++)
     {
@@ -48,7 +48,7 @@ void createWorld(Player *player, Rays *rays, uint32_t *colorBuffer)
             int textureOffsetY = distanceFromTop * ((float)TEXTURE_HEIGHT / wallStripHeight); // take into account that the size of the texture might have to be adjusted
 
             // Set the color of the wall based on the color from the texture in memory
-            uint32_t texelColor = getTexture(texNum).texture_buffer[(TEXTURE_WIDTH * textureOffsetY) + textureOffsetX];
+            uint32_t texelColor = getTexture(wallTextures, texNum).texture_buffer[(TEXTURE_WIDTH * textureOffsetY) + textureOffsetX];
             colorBuffer[(SCREEN_WIDTH * y) + i] = texelColor;
         }
 

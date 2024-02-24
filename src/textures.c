@@ -1,8 +1,6 @@
 #include "../include/init.h"
 #include "../include/textures.h"
 
-texture_t wallTextures[NUM_TEXTURES];
-
 static const char *textureFileNames[NUM_TEXTURES] = {
 	"./assets/images/bonewall.png",
 	"./assets/images/bonewallpillar.png",
@@ -18,10 +16,11 @@ static const char *textureFileNames[NUM_TEXTURES] = {
 
 /**
 * loadWallTextures - load all the wall textures
+* @wallTextures: wall textures
 *
 * Return: void
 */
-void loadWallTextures(void)
+void loadWallTextures(texture_t wallTextures[NUM_TEXTURES])
 {
 	/* Load all the PNG textures from the filepaths */
 	for (int i = 0; i < NUM_TEXTURES; i++)
@@ -45,24 +44,27 @@ void loadWallTextures(void)
 
 /**
 * freeWallTextures - free all the wall textures from memory
+* @wallTextures: wall textures
 *
 * Return: void
 */
-void freeWallTextures(void)
+void freeWallTextures(texture_t wallTextures[NUM_TEXTURES])
 {
 	for (int i = 0; i < NUM_TEXTURES; i++)
 	{
 		upng_free(wallTextures[i].upngTexture);
+		wallTextures[i].upngTexture = NULL;
 	}
 }
 
 /**
 * getTexture - get the texture from the wallTextures array
+* @wallTextures: wall textures
 * @textureIndex: index of the texture
 *
 * Return: texture at the index
 */
-texture_t getTexture(int textureIndex)
+texture_t getTexture(texture_t wallTextures[NUM_TEXTURES], int textureIndex)
 {
 	return (wallTextures[textureIndex]);
 }

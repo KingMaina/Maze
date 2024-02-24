@@ -1,18 +1,18 @@
 #include "../include/init.h"
 #include "../include/constants.h"
-#include "../include/textures.h"
-
-SDL_Texture *colorBufferTexture;
 
 /**
 * setup - setup the game
 * @instance: SDL instance
 * @player: player object
 * @colorBuffer: color buffer
+* @colorBufferTexture: color buffer texture
+* @wallTextures: wall textures
 *
 * Return: void
 */
-void setup(SDL_Instance *instance, Player *player, uint32_t **colorBuffer)
+void setup(SDL_Instance *instance, Player *player, uint32_t **colorBuffer,
+SDL_Texture **colorBufferTexture, texture_t wallTextures[NUM_TEXTURES])
 {
 	player->x = SCREEN_WIDTH / 2;
 	player->y = SCREEN_HEIGHT / 2;
@@ -29,7 +29,7 @@ void setup(SDL_Instance *instance, Player *player, uint32_t **colorBuffer)
 	*colorBuffer = (uint32_t *)malloc(sizeof(uint32_t) * buffSize);
 
 	/* Create a SDL_Texture to display the color buffer */
-	colorBufferTexture = SDL_CreateTexture(
+	*colorBufferTexture = SDL_CreateTexture(
 		instance->renderer,          /* create textures to renderer */
 		SDL_PIXELFORMAT_RGBA32,      /* pixel format -> alpha RGB fill */
 		SDL_TEXTUREACCESS_STREAMING, /* FLAG -> able to change texture, real time */
@@ -37,8 +37,8 @@ void setup(SDL_Instance *instance, Player *player, uint32_t **colorBuffer)
 		SCREEN_HEIGHT                /* size */
 	);
 
-	/* Decode all png files and load the wallTextures array */
-	loadWallTextures();
+	/* Decode all png files and load the wall textures */
+	loadWallTextures(wallTextures);
 }
 
 /**
@@ -69,7 +69,6 @@ void updateGame(Player *player, Rays rays[],
 
 	/* Store the milliseconds of the current frame to be used in the future */
 	*ticksLastFrame = SDL_GetTicks();
-
 	movePlayer(player, map, deltaTime);
 	castAllRays(player, rays, map);
 }
@@ -86,12 +85,12 @@ int main(int argc, char *argv[])
 	SDL_Instance instance;
 	Player player;
 	Rays *rays = malloc(sizeof(Rays) * (sizeof(char) * NUM_RAYS));
-	/* SDL_Texture *colorBufferTexture; */
-	uint32_t *colorBuffer = NULL;
-	int isGameRunning = 0;
-	int ticksLastFrame = 0;
+	SDL_Texture *colorBufferTexture = NULL;
+	uint32_t *colorBuffer = NULL; /* color buffer */
+	int isGameRunning = 0; /* game loop flag */
+	int ticksLastFrame = 0; /* milliseconds of the last frame */
+	texture_t wallTextures[NUM_TEXTURES];
 	int map[MAP_NUM_ROWS][MAP_NUM_COLS] = {
-
 		{1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 		{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
 		{1, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 2, 0, 1},
@@ -107,14 +106,15 @@ int main(int argc, char *argv[])
 		{1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
 
 	isGameRunning = initializeWindow(&instance);
-	setup(&instance, &player, &colorBuffer);
+	setup(&instance, &player, &colorBuffer, &colorBufferTexture, wallTextures);
 	while (isGameRunning)
 	{
 		handleInputEvents(&player, &isGameRunning);
 		updateGame(&player, rays, map, &ticksLastFrame);
-		render(&instance, &player, rays, map, colorBufferTexture, colorBuffer);
+		render(&instance, &player, rays, map,
+			&colorBufferTexture, colorBuffer, wallTextures);
 	}
-	freeMemory(&instance, colorBufferTexture, colorBuffer);
+	freeMemory(&instance, &colorBufferTexture, &colorBuffer, wallTextures);
 	free(rays);
 	return (0);
 }

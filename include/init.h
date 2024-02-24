@@ -11,6 +11,7 @@
 
 /* Custom header files */
 #include "./constants.h"
+#include "./textures.h"
 
 /**
 * struct SDL_Instance - SDL instance
@@ -80,8 +81,10 @@ typedef struct Ray
 
 /* Game setup functions */
 int initializeWindow(SDL_Instance *instance);
-void setup(SDL_Instance *instance, Player *player, uint32_t **colorBuffer);
-void createWorld(Player *player, Rays *rays, uint32_t *colorBuffer);
+void setup(SDL_Instance *instance, Player *player, uint32_t **colorBuffer,
+	SDL_Texture **colorBufferTexture, texture_t wallTextures[NUM_TEXTURES]);
+void createWorld(Player *player, Rays *rays, uint32_t *colorBuffer,
+	texture_t wallTextures[NUM_TEXTURES]);
 
 /* Event handling functions */
 void handleInputEvents(Player *player, int *isGameRunning);
@@ -108,10 +111,14 @@ void renderColorBuffer(SDL_Instance *instance,
 	SDL_Texture *colorBufferTexture, uint32_t *colorBuffer);
 void render(SDL_Instance *instance, Player *player,
 	Rays *rays, int map[MAP_NUM_ROWS][MAP_NUM_COLS],
-	SDL_Texture *colorBufferTexture, uint32_t *colorBuffer);
+	SDL_Texture **colorBufferTexture,
+	uint32_t *colorBuffer,
+	texture_t wallTextures[NUM_TEXTURES]
+);
 
-/* free memory functions */
-void freeMemory(SDL_Instance *instance, SDL_Texture *, uint32_t *);
+/* Free memory functions */
+void freeMemory(SDL_Instance *instance, SDL_Texture **colorBufferTexture,
+	uint32_t **colorBuffer, texture_t wallTextures[NUM_TEXTURES]);
 void clearColorBuffer(uint32_t *colorBuffer, uint32_t color);
 
 /* Helper functions */

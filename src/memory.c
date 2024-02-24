@@ -6,19 +6,30 @@
 * @instance: SDL instance
 * @colorBufferTexture: color buffer texture
 * @colorBuffer: color buffer
+* @wallTextures: wall textures
 *
 * Return: void
 */
-void freeMemory(SDL_Instance *instance, SDL_Texture *colorBufferTexture,
-	uint32_t *colorBuffer)
+void freeMemory(SDL_Instance *instance, SDL_Texture **colorBufferTexture,
+	uint32_t **colorBuffer, texture_t wallTextures[NUM_TEXTURES])
 {
-	freeWallTextures();
-	free(colorBuffer);
-	colorBuffer = NULL;
-	SDL_DestroyTexture(colorBufferTexture);
+	/* Free the wall textures */
+	freeWallTextures(wallTextures);
+
+	/* Free the color buffer */
+	free(*colorBuffer);
+	*colorBuffer = NULL;
+
+	/* Free the color buffer texture */
+	SDL_DestroyTexture(*colorBufferTexture);
+	*colorBufferTexture = NULL;
+
+	/* Destroy the window and renderer */
 	SDL_DestroyRenderer(instance->renderer);
 	SDL_DestroyWindow(instance->window);
 	instance->window = NULL;
 	instance->renderer = NULL;
+
+	/* Quit SDL */
 	SDL_Quit();
 }
