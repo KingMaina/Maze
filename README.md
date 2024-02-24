@@ -1,6 +1,6 @@
 # The Maze Dungeon
 
-https://github.com/KingMaina/Maze/assets/videos/the_maze_demo.webm
+[![Maze](/assets/images/maze4.png)](https://youtu.be/5T8aA8VMpGw)
 
 Maze is a simple game that allows the player to navigate through a maze. The player is represented by a character, and the maze is represented by a grid of cells. The player can move up, down, left, or right, and the goal is to reach the exit of the maze.
 
