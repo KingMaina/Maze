@@ -1,6 +1,8 @@
 # The Maze Dungeon
 
-![Maze Dungeon](/assets/videos/the_maze_demo.webm)
+https://github.com/KingMaina/Maze/assets/videos/the_maze_demo.webm
+
+Maze is a simple game that allows the player to navigate through a maze. The player is represented by a character, and the maze is represented by a grid of cells. The player can move up, down, left, or right, and the goal is to reach the exit of the maze.
 
 ## Introduction
 
@@ -15,7 +17,13 @@ Maze is a simple game that allows the player to navigate through a maze. The pla
 
 ## Installation
 
-To install the game, simply clone the repository and run the following command:
+To install the game, simply clone the repository:
+
+```bash
+git clone <repo-url>
+```
+
+then run the following command in the root directory of the project:
 
 ```bash
 make build && make run
