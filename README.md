@@ -8,8 +8,8 @@ Maze is a simple game that allows the player to navigate through a maze. The pla
 
 ### Links
 
-- [Landing Page]()
-- [Blog Post]()
+- [Landing Page](https://KingMaina.github.io)
+- [Blog Post](https://medium.com/@drew29799/the-art-of-raycasting-tales-from-the-world-of-game-development-f91949c67d05)
 - [Demo](https://youtu.be/5T8aA8VMpGw)
 - Author: [Andrew Maina](https://www.linkedin.com/in/mainadrew/)
 
@@ -30,6 +30,21 @@ To play the game, use the arrow keys to move the player character. The goal is t
 Contributions are welcome. Feel free to open a pull request or an issue if you would like to contribute.
 
 ## Related Projects
+
+Lode's Computer Graphics Tutorial - Raycasting
+<https://lodev.org/cgtutor/raycasting.html>
+
+SDL_Delay:
+<http://wiki.libsdl.org/SDL2/SDL_Delay>
+
+Ray-Casting Tutorial
+<https://permadi.com/1996/05/ray-casting-tutorial-table-of-contents/>
+
+Png decoding library
+<https://github.com/elanthis/upng>
+
+Doom style software renderer
+<https://github.com/jdah/doomenstein-3d>
 
 ## License
 
