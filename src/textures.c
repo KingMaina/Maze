@@ -1,66 +1,111 @@
-#include <stdio.h>
+#include "../include/init.h"
 #include "../include/textures.h"
 
-texture_t wallTextures[NUM_TEXTURES];
-
-// Array of texture file names for my images
-static const char* textureFileNames[NUM_TEXTURES] = {
-    "./images/bonewall.png",
-    "./images/bonewallwithgrass.png",
-    "./images/bonewallpillar.png",
-    "./images/bonewallwithgrass.png",
-    // "./images/00.png",
-    // "./images/bonewall.png",
-    "./images/bonewall.png",
-    "./images/bonewall.png",
-    "./images/bonewall.png",
-    "./images/bonewallpillar.png",
-    "./images/bonewall.png",
-    "./images/bonewall.png",
-    "./images/bonewall.png",
-    // "./images/grass.png",
-    // "./images/magma.png",
-    // "./images/magma.png",
-    // "./images/blueWall01.png",
-    // "./images/blueWall02.png",
-    // "./images/blueWall03.png",
-    // "./images/blueWallWater.png",
-    // "./images/cross.png",
-    // "./images/grid.png",
-    // "./images/pillar01.png",
-    // "./images/pillar02.png",
-    // "./images/statue.png",
-    // "./images/blueBarrel.png",
-    // "./images/candles.png"
+static const char *textureFileNames[NUM_TEXTURES] = {
+	"./assets/images/bonewall.png",
+	"./assets/images/bonewallpillar.png",
+	"./assets/images/bonewallwithgrass.png",
+	"./assets/images/bonewall.png",
+	"./assets/images/bonewall.png",
+	"./assets/images/bonewall.png",
+	"./assets/images/bonewallpillar.png",
+	"./assets/images/bonewall.png",
+	"./assets/images/bonewall.png",
+	"./assets/images/bonewall.png",
 };
 
-void loadWallTextures(){
-    // Load all the PNG textures from the filepaths
-    for (int i = 0; i < NUM_TEXTURES; i++){
-        upng_t* upng;
+/**
+* loadWallTextures - load all the wall textures
+* @wallTextures: wall textures
+*
+* Return: void
+*/
+void loadWallTextures(texture_t wallTextures[NUM_TEXTURES])
+{
+	/* Load all the PNG textures from the filepaths */
+	for (int i = 0; i < NUM_TEXTURES; i++)
+	{
+		upng_t *upng;
 
-        upng = upng_new_from_file(textureFileNames[i]);
-        if (upng != NULL){
-            upng_decode(upng);
-            // Saving the array of textures
-            if (upng_get_error(upng) == UPNG_EOK) {
-                wallTextures[i].upngTexture = upng;
-                wallTextures[i].width = upng_get_width(upng);
-                wallTextures[i].height = upng_get_height(upng);
-                wallTextures[i].texture_buffer = (uint32_t*)upng_get_buffer(upng);
-            }
-        }
-    }
+		upng = upng_new_from_file(textureFileNames[i]);
+		if (upng != NULL)
+		{
+			upng_decode(upng);
+			if (upng_get_error(upng) == UPNG_EOK)
+			{
+				wallTextures[i].upngTexture = upng;
+				wallTextures[i].width = upng_get_width(upng);
+				wallTextures[i].height = upng_get_height(upng);
+				wallTextures[i].texture_buffer = (uint32_t *)upng_get_buffer(upng);
+			}
+		}
+	}
 }
 
-void freeWallTextures(){
-    for (int i = 0; i < NUM_TEXTURES; i++){
-        upng_free(wallTextures[i].upngTexture);
-    }
+/**
+* freeWallTextures - free all the wall textures from memory
+* @wallTextures: wall textures
+*
+* Return: void
+*/
+void freeWallTextures(texture_t wallTextures[NUM_TEXTURES])
+{
+	for (int i = 0; i < NUM_TEXTURES; i++)
+	{
+		upng_free(wallTextures[i].upngTexture);
+		wallTextures[i].upngTexture = NULL;
+	}
 }
 
-texture_t getTexture(int textureIndex) {
+/**
+* getTexture - get the texture from the wallTextures array
+* @wallTextures: wall textures
+* @textureIndex: index of the texture
+*
+* Return: texture at the index
+*/
+texture_t getTexture(texture_t wallTextures[NUM_TEXTURES], int textureIndex)
+{
+	return (wallTextures[textureIndex]);
+}
 
-    return wallTextures[textureIndex];
+/**
+* clearColorBuffer - clear the color buffer
+* @colorBuffer: color buffer
+* @color: color to clear the buffer with
+*
+* Return: void
+*/
+void clearColorBuffer(uint32_t *colorBuffer, uint32_t color)
+{
+	/* Clear the entire color buffer with the color black */
+	for (int x = 0; x < SCREEN_WIDTH; x++)
+	{
+		for (int y = 0; y < SCREEN_HEIGHT; y++)
+		{
+			colorBuffer[(SCREEN_WIDTH * y) + x] = color;
+		}
+	}
+}
 
+/**
+* renderColorBuffer - render the color buffer
+* @instance: SDL instance
+* @colorBufferTexture: color buffer texture
+* @colorBuffer: color buffer
+*
+* Return: void
+*/
+void renderColorBuffer(SDL_Instance *instance,
+	SDL_Texture *colorBufferTexture,
+	uint32_t *colorBuffer
+)
+{
+	/* Copy over all the texture information from the buffer */
+	SDL_UpdateTexture(
+		colorBufferTexture,
+		NULL,
+		colorBuffer,
+		(int)((uint32_t)SCREEN_WIDTH * sizeof(uint32_t)));
+	SDL_RenderCopy(instance->renderer, colorBufferTexture, NULL, NULL);
 }
